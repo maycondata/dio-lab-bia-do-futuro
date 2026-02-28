@@ -1,55 +1,61 @@
-# Base de Conhecimento
+# Base de Conhecimento (MoneyCoach)
 
 ## Dados Utilizados
 
-Descreva se usou os arquivos da pasta `data`, por exemplo:
-
 | Arquivo | Formato | Utilização no Agente |
 |---------|---------|---------------------|
-| `historico_atendimento.csv` | CSV | Contextualizar interações anteriores |
-| `perfil_investidor.json` | JSON | Personalizar recomendações |
-| `produtos_financeiros.json` | JSON | Sugerir produtos adequados ao perfil |
-| `transacoes.csv` | CSV | Analisar padrão de gastos do cliente |
-
-> [!TIP]
-> **Quer um dataset mais robusto?** Você pode utilizar datasets públicos do [Hugging Face](https://huggingface.co/datasets) relacionados a finanças, desde que sejam adequados ao contexto do desafio.
+| `perfil_investidor.json` | JSON | Puxar contexto do cliente (objetivo, reserva atual, metas) para personalizar o plano |
+| `transacoes.csv` | CSV | Estimar gastos essenciais mensais (quando possível) e apoiar cálculo da meta |
+| `produtos_financeiros.json` | JSON | Explicar opções seguras para reserva (ex.: liquidez diária) sem “inventar” recomendações |
+| `historico_atendimento.csv` | CSV | Lembrar preferências e continuidade (ex.: última meta definida, dúvidas recorrentes) |
 
 ---
 
 ## Adaptações nos Dados
 
-> Você modificou ou expandiu os dados mockados? Descreva aqui.
+- Não alteramos os arquivos originais do curso.
+- Criamos um `perfil.json` local (memória do agente) para salvar:
+  - `gastos_essenciais` (informado pelo usuário ou estimado por transações)
+  - `meses_meta` (3 a 12)
+  - `aporte_mensal` e `historico_aportes`
 
-[Sua descrição aqui]
+> Observação: `gastos_essenciais` é o dado central para calcular “3 a 6 meses”. Se a estimativa via transações não for confiável, o agente solicita esse valor ao usuário.
 
 ---
 
 ## Estratégia de Integração
 
 ### Como os dados são carregados?
-> Descreva como seu agente acessa a base de conhecimento.
-
-[ex: Os JSON/CSV são carregados no início da sessão e incluídos no contexto do prompt]
+- JSON/CSV são carregados em tempo de execução (Python), via leitura local de arquivos.
+- O agente monta um “contexto mínimo” com os campos relevantes (sem despejar o arquivo inteiro no prompt).
 
 ### Como os dados são usados no prompt?
-> Os dados vão no system prompt? São consultados dinamicamente?
+- Uso dinâmico (RAG simples/local):
+  1) Carrega os dados
+  2) Extrai apenas o necessário para a resposta atual
+  3) Gera a resposta com:
+     - Resumo do plano
+     - Cálculo (transparência)
+     - Próximo passo (pergunta ou ação)
 
-[Sua descrição aqui]
+> Os dados não ficam fixos no system prompt. São consultados conforme a pergunta do usuário.
 
 ---
 
 ## Exemplo de Contexto Montado
 
-> Mostre um exemplo de como os dados são formatados para o agente.
+```text
+Contexto do Cliente (MoneyCoach)
+- Objetivo: Construir reserva de emergencia
+- Reserva atual: R$ 2.000
+- Gastos essenciais estimados: R$ 2.500 (estimativa via transacoes)
+- Meses de meta: 6
+- Meta calculada: R$ 15.000  (2.500 x 6)
+- Aporte mensal planejado: R$ 500
+- Prazo estimado: 26 meses (faltante 13.000 / 500)
 
-```
-Dados do Cliente:
-- Nome: João Silva
-- Perfil: Moderado
-- Saldo disponível: R$ 5.000
+Produtos citados (base do curso)
+- Opcoes com liquidez para reserva: Tesouro Selic, CDB liquidez diaria
 
-Últimas transações:
-- 01/11: Supermercado - R$ 450
-- 03/11: Streaming - R$ 55
-...
-```
+Historico recente (se existir)
+- Ultima conversa: usuario perguntou onde guardar a reserva e recebeu sugestao de liquidez diaria
