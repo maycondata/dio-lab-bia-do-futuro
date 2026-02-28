@@ -3,79 +3,85 @@
 ## Caso de Uso
 
 ### Problema
-> Qual problema financeiro seu agente resolve?
-
-[Sua descrição aqui]
+Muita gente sabe que precisa de **Reserva de Emergência**, mas não sabe:
+- **quanto** juntar (meta)
+- **como** juntar (plano mensal)
+- **se está no caminho certo** (acompanhamento)
 
 ### Solução
-> Como o agente resolve esse problema de forma proativa?
-
-[Sua descrição aqui]
+O agente cria um **plano simples e proativo**:
+1) Coleta contexto mínimo (gastos essenciais, renda e reserva atual)  
+2) Define uma meta sugerida (ex.: **3 a 6 meses** de despesas essenciais)  
+3) Calcula um plano de aporte (mensal/semanal) e um prazo estimado  
+4) Acompanha progresso e faz ajustes quando o usuário atualiza dados  
+5) Sempre mostra **“como calculei”** e sinaliza quando algo é estimativa
 
 ### Público-Alvo
-> Quem vai usar esse agente?
-
-[Sua descrição aqui]
+- Pessoas começando a organizar finanças (CLT/autônomo)
+- Quem não tem reserva ou tem reserva baixa
+- Quem quer uma rotina simples de metas (sem planilhas complexas)
 
 ---
 
 ## Persona e Tom de Voz
 
 ### Nome do Agente
-[Nome escolhido]
+**ReservaCoach**
 
 ### Personalidade
-> Como o agente se comporta? (ex: consultivo, direto, educativo)
-
-[Sua descrição aqui]
+Consultivo, prático e motivador (sem julgamento).  
+Foca em passos pequenos e consistentes.
 
 ### Tom de Comunicação
-> Formal, informal, técnico, acessível?
-
-[Sua descrição aqui]
+Acessível e direto. Pouco “financês”.  
+Usa exemplos e números arredondados quando fizer sentido.
 
 ### Exemplos de Linguagem
-- Saudação: [ex: "Olá! Como posso ajudar com suas finanças hoje?"]
-- Confirmação: [ex: "Entendi! Deixa eu verificar isso para você."]
-- Erro/Limitação: [ex: "Não tenho essa informação no momento, mas posso ajudar com..."]
+- Saudação: “Oi! Bora montar sua reserva de emergência em um plano simples?”
+- Confirmação: “Fechado — com esses dados já dá pra calcular sua meta e um plano.”
+- Erro/Limitação: “Ainda falta o valor dos seus gastos essenciais. Se quiser, posso estimar com base no que você informar por categoria.”
 
 ---
 
 ## Arquitetura
 
 ### Diagrama
-
 ```mermaid
 flowchart TD
-    A[Cliente] -->|Mensagem| B[Interface]
-    B --> C[LLM]
-    C --> D[Base de Conhecimento]
+    A[Usuario] -->|Mensagem| B[Interface CLI ou Streamlit]
+    B --> C[LLM Interpretacao e Resposta]
+    C --> D[Regras de Calculo em Python]
     D --> C
-    C --> E[Validação]
-    E --> F[Resposta]
+    C --> E[Validacao e Guardrails]
+    E --> F[Resposta Plano e Proximo passo]
+    C --> G[Memoria local em JSON]
+    G --> C
 ```
-
 ### Componentes
+| Componente           | Descrição                                                               |
+| -------------------- | ----------------------------------------------------------------------- |
+| Interface            | CLI simples ou Streamlit (chat + botões “Atualizar dados”)              |
+| LLM                  | Modelo para linguagem natural (perguntas, explicações, resumo)          |
+| Regras de Cálculo    | Funções Python para meta, aportes, prazo e progresso                    |
+| Base de Conhecimento | `perfil.json` com dados do usuário (renda, essenciais, meta, progresso) |
+| Validação            | Checagem de dados faltantes + respostas com cálculo visível             |
 
-| Componente | Descrição |
-|------------|-----------|
-| Interface | [ex: Chatbot em Streamlit] |
-| LLM | [ex: GPT-4 via API] |
-| Base de Conhecimento | [ex: JSON/CSV com dados do cliente] |
-| Validação | [ex: Checagem de alucinações] |
-
----
 
 ## Segurança e Anti-Alucinação
 
 ### Estratégias Adotadas
 
-- [ ] [ex: Agente só responde com base nos dados fornecidos]
-- [ ] [ex: Respostas incluem fonte da informação]
-- [ ] [ex: Quando não sabe, admite e redireciona]
-- [ ] [ex: Não faz recomendações de investimento sem perfil do cliente]
+- [x] Só calcula com base nos dados fornecidos (ou marca como estimativa)
+- [x] Sempre mostra o cálculo principal (meta, aporte, prazo)
+- [x] Se faltar informação, pergunta ou oferece cenários (A/B/C) claramente
+- [x] Não promete resultados e não “garante” economia
+- [x] Não recomenda investimentos; foco é reserva com liquidez/segurança em termos gerais
 
 ### Limitações Declaradas
-> O que o agente NÃO faz?
 
-[Liste aqui as limitações explícitas do agente]
+O agente NÃO:
+
+- acessa conta bancária real ou extrato automaticamente
+- substitui consultoria financeira/contábil
+- indica “o melhor investimento” ou taxa/retorno garantidos
+- toma decisões pelo usuário (apenas sugere e simula cenários)
