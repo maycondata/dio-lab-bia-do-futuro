@@ -71,7 +71,7 @@ Projeto_Final_MoneyCoach/
 ## Evidência de Execução
 
 ### Print 1 — App rodando
-![App rodando](evidencias/moneycoach1)
+![App rodando](evidencias/moneycoach1.png)
 
 ### Print 2 — App rodando
-![Terminal](evidencias/moneycoach2)
+![Terminal](evidencias/moneycoach2.png)
