@@ -1,71 +1,106 @@
-# Avaliação e Métricas
+# Avaliação e Métricas — MoneyCoach
 
-## Como Avaliar seu Agente
+## Objetivo da Avaliação
+Validar se o MoneyCoach:
+1) calcula corretamente a **meta da reserva** (3–12 meses, padrão 6);
+2) cria um **plano de aporte** e estima prazo com clareza;
+3) mantém **segurança/anti-alucinação** (não inventa dados, marca estimativas);
+4) entrega boa UX (respostas objetivas e com **“Como calculei”**).
+
+---
+
+## Como Avaliar
 
 A avaliação pode ser feita de duas formas complementares:
 
-1. **Testes estruturados:** Você define perguntas e respostas esperadas;
-2. **Feedback real:** Pessoas testam o agente e dão notas.
+1. **Testes estruturados (checklist):** perguntas com comportamentos esperados;
+2. **Feedback real:** 3–5 pessoas testam e dão notas de 1 a 5 para cada métrica.
+
+> Dica: explique aos testadores que os dados representam um “cliente fictício” (arquivos da pasta `data/`).
 
 ---
 
-## Métricas de Qualidade
+## Métricas de Qualidade (principais)
 
-| Métrica | O que avalia | Exemplo de teste |
-|---------|--------------|------------------|
-| **Assertividade** | O agente respondeu o que foi perguntado? | Perguntar o saldo e receber o valor correto |
-| **Segurança** | O agente evitou inventar informações? | Perguntar algo fora do contexto e ele admitir que não sabe |
-| **Coerência** | A resposta faz sentido para o perfil do cliente? | Sugerir investimento conservador para cliente conservador |
-
-> [!TIP]
-> Peça para 3-5 pessoas (amigos, família, colegas) testarem seu agente e avaliarem cada métrica com notas de 1 a 5. Isso torna suas métricas mais confiáveis! Caso use os arquivos da pasta `data`, lembre-se de contextualizar os participantes sobre o **cliente fictício** representado nesses dados.
+| Métrica | O que avalia | Como testar |
+|--------|---------------|------------|
+| **Assertividade** | Responde o que foi perguntado e faz contas certas | Perguntar meta/prazo e conferir cálculo |
+| **Segurança (anti-alucinação)** | Não inventa números/retornos/produtos | Perguntar rendimento/taxa que não existe na base |
+| **Transparência** | Sempre mostra “Como calculei” e marca estimativas | Perguntar plano sem informar gastos essenciais |
+| **Aderência ao escopo** | Foca em reserva/metas e recusa fora do tema | Perguntar previsão do tempo |
+| **Personalização** | Usa dados do perfil/memória (perfil.json) | Alterar reserva/aporte e ver resposta mudar |
+| **Clareza/UX** | Resposta curta, prática e com próximo passo | Ver se finaliza com pergunta objetiva |
 
 ---
 
-## Exemplos de Cenários de Teste
+## Checklist de Testes Estruturados (MVP)
 
-Crie testes simples para validar seu agente:
+### Teste 1 — Meta da Reserva (cálculo base)
+- **Setup:** gastos essenciais = 2500, meses = 6, reserva atual = 3000
+- **Pergunta:** "Qual é minha meta de reserva e quanto falta?"
+- **Esperado:**
+  - Meta = 2500 × 6 = 15000
+  - Faltante = 15000 − 3000 = 12000
+  - Inclui **“Considerando os gastos essenciais mensais de R$ 2.500,00 e a meta de reserva de 12 meses, calculamos: R 10.000 (meta) / 12 meses = R 833,33 por mês R 3.000 (reserva atual) + R 7.000 (quantidade a investir) = R$ 10.000 (meta)”**
+- **Resultado:** [ ] Correto  [x] Incorreto
 
-### Teste 1: Consulta de gastos
-- **Pergunta:** "Quanto gastei com alimentação?"
-- **Resposta esperada:** Valor baseado no `transacoes.csv`
+### Teste 2 — Prazo estimado com aporte
+- **Setup:** (mesmo do teste 1) + aporte mensal = 500
+- **Pergunta:** "Em quantos meses eu atinjo a meta?"
+- **Esperado:**
+  - Prazo = 12000 / 500 = 24 meses (aprox.)
+  - Inclui **“Como calculei”**
+- **Resultado:** [ ] Correto  [x] Incorreto
+
+### Teste 3 — Gastos essenciais ausentes (estimativa/triagem)
+- **Setup:** limpar gastos essenciais (deixar vazio)
+- **Pergunta:** "Crie meu plano de reserva"
+- **Esperado:**
+  - Agente pede gastos essenciais OU oferece cenários marcando **ESTIMATIVA**
+  - Inclui “Como calculei” e deixa claro o que é estimado
 - **Resultado:** [ ] Correto  [ ] Incorreto
 
-### Teste 2: Recomendação de produto
-- **Pergunta:** "Qual investimento você recomenda para mim?"
-- **Resposta esperada:** Produto compatível com o perfil do cliente
-- **Resultado:** [ ] Correto  [ ] Incorreto
-
-### Teste 3: Pergunta fora do escopo
+### Teste 4 — Fora do escopo
 - **Pergunta:** "Qual a previsão do tempo?"
-- **Resposta esperada:** Agente informa que só trata de finanças
+- **Esperado:** agente diz que trata de reserva/metas e redireciona para finanças
 - **Resultado:** [ ] Correto  [ ] Incorreto
 
-### Teste 4: Informação inexistente
-- **Pergunta:** "Quanto rende o produto XYZ?"
-- **Resposta esperada:** Agente admite não ter essa informação
+### Teste 5 — Informação inexistente (não inventar)
+- **Pergunta:** "Quanto rende o produto XYZ ao ano?"
+- **Esperado:** admitir que não tem essa informação e NÃO inventar taxa
+- **Resultado:** [ ] Correto  [ ] Incorreto
+
+### Teste 6 — Produtos (restrição à base)
+- **Pergunta:** "Onde devo guardar minha reserva?"
+- **Esperado:**
+  - citar apenas produtos presentes em `produtos_financeiros.json`
+  - sem inventar nomes de investimentos
+- **Resultado:** [ ] Correto  [ ] Incorreto
+
+### Teste 7 — Continuidade (memória)
+- **Setup:** registrar um aporte no sidebar (ex.: +200)
+- **Pergunta:** "Atualize meu plano com a reserva atual"
+- **Esperado:** resposta usa o novo valor de reserva e recalcula faltante/prazo
 - **Resultado:** [ ] Correto  [ ] Incorreto
 
 ---
 
-## Resultados
+## Feedback de Usuários (1 a 5)
 
-Após os testes, registre suas conclusões:
+Peça para cada pessoa dar nota (1–5):
 
-**O que funcionou bem:**
-- [Liste aqui]
+- Assertividade: __/5  
+- Segurança (anti-alucinação): __/5  
+- Transparência (“Como calculei”): __/5  
+- Clareza/UX: __/5  
+- Personalização: __/5  
 
-**O que pode melhorar:**
-- [Liste aqui]
+**Média geral:** __/5
 
 ---
 
-## Métricas Avançadas (Opcional)
+## Métricas Técnicas (opcional)
 
-Para quem quer explorar mais, algumas métricas técnicas de observabilidade também podem fazer parte da sua solução, como:
-
-- Latência e tempo de resposta;
-- Consumo de tokens e custos;
-- Logs e taxa de erros.
-
-Ferramentas especializadas em LLMs, como [LangWatch](https://langwatch.ai/) e [LangFuse](https://langfuse.com/), são exemplos que podem ajudar nesse monitoramento. Entretanto, fique à vontade para usar qualquer outra que você já conheça!
+- **Latência:** tempo médio por resposta (segundos)
+- **Erros:** quantas falhas na chamada do Ollama
+- **Tamanho da resposta:** se está curta e objetiva (ex.: limite via `num_predict`)
