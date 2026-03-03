@@ -41,16 +41,17 @@ A avaliação pode ser feita de duas formas complementares:
 - **Esperado:**
   - Meta = 2500 × 6 = 15000
   - Faltante = 15000 − 3000 = 12000
-  - Inclui **“Considerando os gastos essenciais mensais de R$ 2.500,00 e a meta de reserva de 12 meses, calculamos: R 10.000 (meta) / 12 meses = R 833,33 por mês R 3.000 (reserva atual) + R 7.000 (quantidade a investir) = R$ 10.000 (meta)”**
-- **Resultado:** [ ] Correto  [x] Incorreto
+  - Inclui **“A meta de reserva para João Silva é de R 15.000,00. Com base nos gastos essenciais informados (R 2.500,00), a reserva atual é de R 3.000,00. Isso significa que falta R 12.000,00 para atingir a meta.”**
+- **Resultado:** [X] Correto  [ ] Incorreto
 
 ### Teste 2 — Prazo estimado com aporte
 - **Setup:** (mesmo do teste 1) + aporte mensal = 500
 - **Pergunta:** "Em quantos meses eu atinjo a meta?"
 - **Esperado:**
   - Prazo = 12000 / 500 = 24 meses (aprox.)
-  - Inclui **“Como calculei”**
-- **Resultado:** [ ] Correto  [x] Incorreto
+  - Inclui **“Como calculei: Primeiro, calculamos o valor total a ser economizado: R 15.000,00 (meta) - R 3.000,00 (reserva atual) = R$ 12.000,00.
+Em seguida, dividimos esse valor pelo valor mensal de aporte: R 12.000,00 / R 500,00 = 24 meses.”**
+- **Resultado:** [x] Correto  [ ] Incorreto
 
 ### Teste 3 — Gastos essenciais ausentes (estimativa/triagem)
 - **Setup:** limpar gastos essenciais (deixar vazio)
@@ -58,49 +59,28 @@ A avaliação pode ser feita de duas formas complementares:
 - **Esperado:**
   - Agente pede gastos essenciais OU oferece cenários marcando **ESTIMATIVA**
   - Inclui “Como calculei” e deixa claro o que é estimado
-- **Resultado:** [ ] Correto  [ ] Incorreto
+- **Resultado:** [X] Correto  [ ] Incorreto
 
 ### Teste 4 — Fora do escopo
 - **Pergunta:** "Qual a previsão do tempo?"
 - **Esperado:** agente diz que trata de reserva/metas e redireciona para finanças
-- **Resultado:** [ ] Correto  [ ] Incorreto
+- **Resultado:** [X] Correto  [ ] Incorreto
 
 ### Teste 5 — Informação inexistente (não inventar)
 - **Pergunta:** "Quanto rende o produto XYZ ao ano?"
 - **Esperado:** admitir que não tem essa informação e NÃO inventar taxa
-- **Resultado:** [ ] Correto  [ ] Incorreto
+- **Resultado:** [ ] Correto  [X] Incorreto
 
 ### Teste 6 — Produtos (restrição à base)
 - **Pergunta:** "Onde devo guardar minha reserva?"
 - **Esperado:**
   - citar apenas produtos presentes em `produtos_financeiros.json`
   - sem inventar nomes de investimentos
-- **Resultado:** [ ] Correto  [ ] Incorreto
+- **Resultado:** [X] Correto  [ ] Incorreto
 
 ### Teste 7 — Continuidade (memória)
 - **Setup:** registrar um aporte no sidebar (ex.: +200)
 - **Pergunta:** "Atualize meu plano com a reserva atual"
 - **Esperado:** resposta usa o novo valor de reserva e recalcula faltante/prazo
-- **Resultado:** [ ] Correto  [ ] Incorreto
+- **Resultado:** [X] Correto  [ ] Incorreto
 
----
-
-## Feedback de Usuários (1 a 5)
-
-Peça para cada pessoa dar nota (1–5):
-
-- Assertividade: __/5  
-- Segurança (anti-alucinação): __/5  
-- Transparência (“Como calculei”): __/5  
-- Clareza/UX: __/5  
-- Personalização: __/5  
-
-**Média geral:** __/5
-
----
-
-## Métricas Técnicas (opcional)
-
-- **Latência:** tempo médio por resposta (segundos)
-- **Erros:** quantas falhas na chamada do Ollama
-- **Tamanho da resposta:** se está curta e objetiva (ex.: limite via `num_predict`)
